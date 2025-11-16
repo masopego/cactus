@@ -1,5 +1,6 @@
 package es.masopego.cactus.meetups.domain
 
+import es.masopego.cactus.venues.domain.Venue
 import java.time.LocalDate
 
 data class Meetup(
@@ -7,4 +8,5 @@ data class Meetup(
     val title: String,
     val description: String,
     val startDate: LocalDate?,
+    val venue: Venue
 )
