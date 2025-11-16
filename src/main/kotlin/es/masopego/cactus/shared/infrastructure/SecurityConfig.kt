@@ -1,4 +1,4 @@
-package es.masopego.cactus.security.infrastructure
+package es.masopego.cactus.shared.infrastructure
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
