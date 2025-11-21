@@ -1,7 +1,9 @@
 package es.masopego.cactus.shared.infrastructure
 
+import es.masopego.cactus.meetups.infrastructure.persistence.entity.MeetupSpeakers
 import es.masopego.cactus.meetups.infrastructure.persistence.entity.Meetups
 import es.masopego.cactus.shared.infrastructure.persistence.fixture.Fixture
+import es.masopego.cactus.speakers.persistence.entity.Speakers
 import es.masopego.cactus.venues.infrastructure.persistence.entity.Venues
 import jakarta.annotation.PostConstruct
 import org.jetbrains.exposed.sql.Database
@@ -21,7 +23,7 @@ class DatabaseConfig(
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.create(Venues, Meetups)
+            SchemaUtils.create(Venues, Meetups, Speakers, MeetupSpeakers)
 
             fixtures.forEach {
                 it.load()

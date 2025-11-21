@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 @Order(2)
@@ -17,6 +18,8 @@ class MeetupFixtures(
 
     companion object {
         private val logger = LoggerFactory.getLogger(MeetupFixtures::class.java)
+
+        val createdMeetupIds = mutableMapOf<String, UUID>()
     }
 
     override fun load() {
@@ -24,24 +27,27 @@ class MeetupFixtures(
 
         if (Meetups.selectAll().empty()) {
             logger.info("Inserting meetups")
-
-            Meetups.insert {
+            
+            val id1: UUID = Meetups.insert {
                 it[title] = "AI & Future"
                 it[description] = "Charla sobre inteligencia artificial aplicada"
                 it[venue] = venueFixture.createdVenueIds["Clasijazz"]!!
-            }
+            } get Meetups.id
+            createdMeetupIds["AI & Future"] = id1
 
-            Meetups.insert {
+            val id2: UUID = Meetups.insert {
                 it[title] = "Web3 Developers"
                 it[description] = "Evento sobre desarrollo descentralizado"
                 it[venue] = venueFixture.createdVenueIds["Coworking Workspace"]!!
-            }
+            } get Meetups.id
+            createdMeetupIds["Web3 Developers"] = id2
 
-            Meetups.insert {
+            val id3: UUID = Meetups.insert {
                 it[title] = "Cybersecurity 2025"
                 it[description] = "Jornada sobre ciberseguridad y privacidad"
                 it[venue] = venueFixture.createdVenueIds["Teatro Apolo"]!!
-            }
+            } get Meetups.id
+            createdMeetupIds["Cybersecurity 2025"] = id3
         }
     }
 }
