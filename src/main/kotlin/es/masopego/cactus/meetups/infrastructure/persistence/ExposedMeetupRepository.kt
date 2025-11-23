@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
+import java.util.*
 
 @Repository
 class ExposedMeetupRepository : MeetupRepository {
@@ -55,4 +56,45 @@ class ExposedMeetupRepository : MeetupRepository {
                     )
                 }
         }
+
+    override fun findById(id: UUID): Meetup? =
+        transaction {
+            (Meetups innerJoin Venues)
+                .select { Meetups.id eq id }
+                .singleOrNull()
+                ?.let { row ->
+                    val meetupId = row[Meetups.id]
+
+                    val speakerIds = MeetupSpeakers.select { MeetupSpeakers.meetup eq meetupId }
+                        .map { it[MeetupSpeakers.speaker] }
+
+                    val speakers = Speakers.select { Speakers.id inList speakerIds }
+                        .map { speakerRow ->
+                            Speaker(
+                                id = speakerRow[Speakers.id],
+                                firstName = speakerRow[Speakers.firstName],
+                                lastName = speakerRow[Speakers.lastName],
+                                biography = speakerRow[Speakers.biography],
+                                company = speakerRow[Speakers.company]
+                            )
+                        }
+
+                    Meetup(
+                        id = row[Meetups.id],
+                        title = row[Meetups.title],
+                        description = row[Meetups.description],
+                        startDate = LocalDate.now(),
+                        venue = Venue(
+                            id = row[Venues.id],
+                            place = row[Venues.place],
+                            latitude = row[Venues.latitude],
+                            longitude = row[Venues.longitude],
+                            address = row[Venues.address],
+                            seats = row[Venues.seats]
+                        ),
+                        speakers = speakers
+                    )
+                }
+        }
+
 }
