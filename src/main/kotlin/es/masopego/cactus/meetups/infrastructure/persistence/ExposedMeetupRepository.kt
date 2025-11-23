@@ -12,7 +12,6 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 import java.util.*
 
 @Repository
@@ -43,7 +42,7 @@ class ExposedMeetupRepository : MeetupRepository {
                         id = row[Meetups.id],
                         title = row[Meetups.title],
                         description = row[Meetups.description],
-                        startDate = LocalDate.now(),
+                        startDate = row[Meetups.startDate].toLocalDate(),
                         venue = Venue(
                             id = row[Venues.id],
                             place = row[Venues.place],
@@ -83,7 +82,7 @@ class ExposedMeetupRepository : MeetupRepository {
                         id = row[Meetups.id],
                         title = row[Meetups.title],
                         description = row[Meetups.description],
-                        startDate = LocalDate.now(),
+                        startDate = row[Meetups.startDate].toLocalDate(),
                         venue = Venue(
                             id = row[Venues.id],
                             place = row[Venues.place],

@@ -9,12 +9,9 @@ data class Meetup(
     val id: UUID,
     val title: String,
     val description: String,
-    val startDate: LocalDate?,
+    val startDate: LocalDate,
     val venue: Venue,
     val speakers: List<Speaker> = emptyList()
 ) {
-    fun canConfirmAttendance(): Boolean {
-        // TODO: Remove this startDate when change in database is done
-        return startDate == null || !startDate.isBefore(LocalDate.now())
-    }
+    fun canConfirmAttendance(): Boolean = !startDate.isBefore(LocalDate.now())
 }
