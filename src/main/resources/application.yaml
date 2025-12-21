@@ -7,3 +7,11 @@ spring:
     username: myuser
     password: secret
     driver-class-name: org.postgresql.Driver
+
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 horas en milisegundos
+
+supabase:
+  url: ${SUPABASE_URL:https://your-project.supabase.co}
+  anonKey: ${SUPABASE_ANON_KEY:your-supabase-anon-key}
