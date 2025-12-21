@@ -42,7 +42,7 @@ class ExposedMeetupRepository : MeetupRepository {
                         id = row[Meetups.id],
                         title = row[Meetups.title],
                         description = row[Meetups.description],
-                        startDate = row[Meetups.startDate].toLocalDate(),
+                        startDate = row[Meetups.startDate],
                         venue = Venue(
                             id = row[Venues.id],
                             place = row[Venues.place],
@@ -82,7 +82,7 @@ class ExposedMeetupRepository : MeetupRepository {
                         id = row[Meetups.id],
                         title = row[Meetups.title],
                         description = row[Meetups.description],
-                        startDate = row[Meetups.startDate].toLocalDate(),
+                        startDate = row[Meetups.startDate],
                         venue = Venue(
                             id = row[Venues.id],
                             place = row[Venues.place],

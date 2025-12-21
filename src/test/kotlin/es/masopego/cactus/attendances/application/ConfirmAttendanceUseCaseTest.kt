@@ -14,7 +14,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -38,7 +37,7 @@ class ConfirmAttendanceUseCaseTest {
     @Test
     fun `debe confirmar asistencia exitosamente cuando el meetup existe y el usuario no esta registrado`() {
         // Given
-        val futureDate = LocalDate.now().plusDays(7)
+        val futureDate = LocalDateTime.now().plusDays(7)
         val meetup = createMeetup(startDate = futureDate)
         val request = ConfirmAttendanceRequest(userId, meetupId)
 
@@ -94,7 +93,7 @@ class ConfirmAttendanceUseCaseTest {
     @Test
     fun `debe fallar cuando el meetup ya ha comenzado`() {
         // Given
-        val pastDate = LocalDate.now().minusDays(1)
+        val pastDate = LocalDateTime.now().minusDays(1)
         val meetup = createMeetup(startDate = pastDate)
         val request = ConfirmAttendanceRequest(userId, meetupId)
 
@@ -113,7 +112,7 @@ class ConfirmAttendanceUseCaseTest {
     @Test
     fun `debe fallar cuando el usuario ya esta registrado en el meetup`() {
         // Given
-        val futureDate = LocalDate.now().plusDays(7)
+        val futureDate = LocalDateTime.now().plusDays(7)
         val meetup = createMeetup(startDate = futureDate)
         val existingAttendance = Attendance(
             id = UUID.randomUUID(),
@@ -135,9 +134,9 @@ class ConfirmAttendanceUseCaseTest {
         assertNotNull(exception)
         assertTrue(exception is UserAlreadyRegistered)
     }
-    
 
-    private fun createMeetup(startDate: LocalDate?): Meetup {
+
+    private fun createMeetup(startDate: LocalDateTime?): Meetup {
         val venue = Venue(
             id = venueId,
             place = "Test Venue",
