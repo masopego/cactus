@@ -1,9 +1,9 @@
 package es.masopego.cactus.auth.application
 
+import es.masopego.cactus.auth.domain.TokenGenerator
 import es.masopego.cactus.auth.domain.User
 import es.masopego.cactus.auth.domain.UserRepository
 import es.masopego.cactus.auth.infrastructure.http.dto.AuthenticationResponse
-import es.masopego.cactus.auth.infrastructure.jwt.JwtService
 import es.masopego.cactus.auth.infrastructure.supabase.SupabaseUserResponse
 import es.masopego.cactus.auth.infrastructure.supabase.SupabaseValidationService
 import org.springframework.security.core.userdetails.User.builder
@@ -12,9 +12,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Service
-class AuthenticationService(
+class AuthenticateWithSupabaseUseCase(
     private val userRepository: UserRepository,
-    private val jwtService: JwtService,
+    private val tokenGenerator: TokenGenerator,
     private val supabaseValidationService: SupabaseValidationService
 ) {
 
@@ -34,7 +34,7 @@ class AuthenticationService(
             .authorities("ROLE_CUSTOMER")
             .build()
 
-        val jwtToken = jwtService.generateToken(userDetails)
+        val jwtToken = tokenGenerator.generateToken(userDetails)
 
         return AuthenticationResponse(
             token = jwtToken,

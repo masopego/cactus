@@ -1,5 +1,6 @@
 package es.masopego.cactus.auth.infrastructure.jwt
 
+import es.masopego.cactus.auth.domain.TokenGenerator
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -10,23 +11,23 @@ import java.util.*
 import javax.crypto.SecretKey
 
 @Service
-class JwtService {
+class JwtService : TokenGenerator {
 
     @Value("\${jwt.secret}")
     private lateinit var secret: String
 
-    @Value("\${jwt.expiration:86400000}") // 24 horas por defecto
+    @Value("\${jwt.expiration:86400000}")
     private val expiration: Long = 86400000
 
     private fun getSigningKey(): SecretKey {
         return Keys.hmacShaKeyFor(secret.toByteArray())
     }
 
-    fun generateToken(userDetails: UserDetails): String {
+    override fun generateToken(userDetails: UserDetails): String {
         return generateToken(HashMap(), userDetails)
     }
 
-    fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
+    override fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
         return Jwts.builder()
             .claims(extraClaims)
             .subject(userDetails.username)
