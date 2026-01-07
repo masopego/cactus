@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
+import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
@@ -16,6 +17,18 @@ class JwtAuthenticationFilter(
     private val jwtService: JwtService,
     private val userDetailsService: UserDetailsService
 ) : OncePerRequestFilter() {
+
+    private val publicPatterns = listOf(
+        "/api/auth/validate-supabase",
+        "/public/**",
+        "/swagger-ui/**",
+        "/v3/api-docs/**"
+    )
+    private val antPathMatcher = AntPathMatcher()
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        return publicPatterns.any { antPathMatcher.match(it, request.servletPath) }
+    }
 
     override fun doFilterInternal(
         request: HttpServletRequest,

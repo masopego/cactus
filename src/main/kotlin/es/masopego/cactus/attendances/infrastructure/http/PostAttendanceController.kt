@@ -2,7 +2,9 @@ package es.masopego.cactus.attendances.infrastructure.http
 
 import es.masopego.cactus.attendances.application.ConfirmAttendanceRequest
 import es.masopego.cactus.attendances.application.ConfirmAttendanceUseCase
+import es.masopego.cactus.auth.domain.UserRepository
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -12,20 +14,27 @@ import java.util.*
 @RestController
 @RequestMapping("/api")
 class PostAttendanceController(
-    val useCase: ConfirmAttendanceUseCase
+    val useCase: ConfirmAttendanceUseCase,
+    val userRepository: UserRepository
 ) {
 
     @PostMapping("/meetups/{meetupId}/attendance")
     fun confirmAttendance(
-        @PathVariable meetupId: UUID
+        @PathVariable meetupId: UUID,
+        authentication: Authentication
     ): ResponseEntity<Any> {
 
-        // TODO: Meter autenticación y sacar el userId de ahí
-        val userId = UUID.fromString("1b7c54db-8455-4cac-bbb3-86df5cd7e672")
+        val user = userRepository.findByEmail(authentication.name)
+            ?: return ResponseEntity.status(401).body(
+                AttanceErrorResponse(
+                    code = 1000,
+                    message = "User not authenticated"
+                )
+            )
 
         useCase.execute(
             ConfirmAttendanceRequest(
-                userId = userId,
+                userId = user.id!!,
                 meetupId = meetupId
             )
         ).onSuccess {
