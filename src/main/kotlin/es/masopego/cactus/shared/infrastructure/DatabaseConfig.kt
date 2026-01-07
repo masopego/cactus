@@ -2,6 +2,7 @@ package es.masopego.cactus.shared.infrastructure
 
 import es.masopego.cactus.attendances.infrastructure.persistence.entity.Attendances
 import es.masopego.cactus.auth.infrastructure.persistence.entity.Users
+import es.masopego.cactus.feedback.infrastructure.persistence.entity.Feedbacks
 import es.masopego.cactus.meetups.infrastructure.persistence.entity.MeetupSpeakers
 import es.masopego.cactus.meetups.infrastructure.persistence.entity.Meetups
 import es.masopego.cactus.shared.infrastructure.persistence.fixture.Fixture
@@ -25,7 +26,7 @@ class DatabaseConfig(
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.create(Venues, Meetups, Speakers, MeetupSpeakers, Attendances, Users)
+            SchemaUtils.create(Venues, Meetups, Speakers, MeetupSpeakers, Attendances, Users, Feedbacks)
 
             fixtures.forEach {
                 it.load()

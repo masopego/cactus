@@ -26,6 +26,19 @@ class ExposedAttendanceRepository : AttendanceRepository {
                 }.firstOrNull()
         }
 
+    override fun findById(attendanceId: UUID): Attendance? =
+        transaction {
+            Attendances.select { Attendances.id eq attendanceId }
+                .map { row ->
+                    Attendance(
+                        id = row[Attendances.id],
+                        userId = row[Attendances.user],
+                        meetupId = row[Attendances.meetup],
+                        confirmed = row[Attendances.confirmed]
+                    )
+                }.firstOrNull()
+        }
+
     override fun confirmAttendance(userId: UUID, meetupId: UUID) {
         transaction {
             Attendances.insert {
