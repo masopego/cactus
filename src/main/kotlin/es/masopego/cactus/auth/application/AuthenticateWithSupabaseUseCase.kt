@@ -1,5 +1,6 @@
 package es.masopego.cactus.auth.application
 
+import es.masopego.cactus.auth.domain.AuthConstants
 import es.masopego.cactus.auth.domain.TokenGenerator
 import es.masopego.cactus.auth.domain.User
 import es.masopego.cactus.auth.domain.UserRepository
@@ -50,7 +51,7 @@ class AuthenticateWithSupabaseUseCase(
             ?: supabaseUser.email.substringBefore("@")
         val avatar = supabaseUser.userMetadata?.avatar
             ?: supabaseUser.userMetadata?.avatarUrl
-            ?: "default-avatar.png"
+            ?: AuthConstants.DEFAULT_AVATAR_URL
 
         val user = User(
             id = UUID.fromString(supabaseUser.id),
