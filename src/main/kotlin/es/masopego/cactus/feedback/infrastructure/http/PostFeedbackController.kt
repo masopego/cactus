@@ -3,6 +3,7 @@ package es.masopego.cactus.feedback.infrastructure.http
 import es.masopego.cactus.auth.domain.UserRepository
 import es.masopego.cactus.feedback.application.*
 import es.masopego.cactus.feedback.infrastructure.http.dto.CreateFeedbackRequest
+import es.masopego.cactus.feedback.infrastructure.http.dto.FeedbackErrorResponse
 import es.masopego.cactus.feedback.infrastructure.http.dto.FeedbackResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,7 +24,7 @@ class PostFeedbackController(
         @RequestBody request: CreateFeedbackRequest,
         authentication: Authentication
     ): ResponseEntity<Any> {
-        
+
         val user = userRepository.findByEmail(authentication.name)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 FeedbackErrorResponse(
@@ -104,7 +105,3 @@ class PostFeedbackController(
     }
 }
 
-data class FeedbackErrorResponse(
-    val code: Int,
-    val message: String
-)
