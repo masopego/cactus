@@ -1,13 +1,13 @@
 package es.masopego.cactus.attendances.application
 
-import es.masopego.cactus.attendances.domain.Attendance
 import es.masopego.cactus.attendances.domain.AttendanceRepository
 import es.masopego.cactus.attendances.domain.errors.MeetupAlreadyStarted
 import es.masopego.cactus.attendances.domain.errors.MeetupNotFound
-import es.masopego.cactus.attendances.domain.errors.UserAlreadyRegistered
-import es.masopego.cactus.meetups.domain.Meetup
+import es.masopego.cactus.fixtures.AttendanceFixtures.createConfirmedAttendance
+import es.masopego.cactus.fixtures.AttendanceFixtures.createUnconfirmedAttendance
+import es.masopego.cactus.fixtures.MeetupFixtures.createFutureMeetup
+import es.masopego.cactus.fixtures.MeetupFixtures.createPastMeetup
 import es.masopego.cactus.meetups.domain.MeetupRepository
-import es.masopego.cactus.venues.domain.Venue
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,7 +25,6 @@ class ConfirmAttendanceUseCaseTest {
 
     private val userId = UUID.randomUUID()
     private val meetupId = UUID.randomUUID()
-    private val venueId = UUID.randomUUID()
 
     @BeforeEach
     fun setUp() {
@@ -35,54 +34,48 @@ class ConfirmAttendanceUseCaseTest {
     }
 
     @Test
-    fun `debe confirmar asistencia exitosamente cuando el meetup existe y el usuario no esta registrado`() {
-        // Given
-        val futureDate = LocalDateTime.now().plusDays(7)
-        val meetup = createMeetup(startDate = futureDate)
+    fun `should confirm attendance successfully when meetup exists and user has unconfirmed attendance`() {
+        val meetup = createFutureMeetup()
+        val unconfirmedAttendance = createUnconfirmedAttendance(userId = userId, meetupId = meetupId)
         val request = ConfirmAttendanceRequest(userId, meetupId)
 
         every { meetupRepository.findById(meetupId) } returns meetup
-        every { attendanceRepository.getAttendance(userId, meetupId) } returns null
-        every { attendanceRepository.confirmAttendance(userId, meetupId) } returns Unit
+        every { attendanceRepository.getAttendance(userId, meetupId) } returns unconfirmedAttendance
+        every { attendanceRepository.confirmExistingAttendance(unconfirmedAttendance.id) } returns unconfirmedAttendance.copy(
+            confirmed = LocalDateTime.now()
+        )
 
-        // When
         val result = useCase.execute(request)
 
-        // Then
         assertTrue(result.isSuccess)
         verify { meetupRepository.findById(meetupId) }
         verify { attendanceRepository.getAttendance(userId, meetupId) }
-        verify { attendanceRepository.confirmAttendance(userId, meetupId) }
+        verify { attendanceRepository.confirmExistingAttendance(unconfirmedAttendance.id) }
     }
 
     @Test
-    fun `debe confirmar asistencia exitosamente cuando el meetup no tiene fecha de inicio`() {
-        // Given
-        val meetup = createMeetup(startDate = null)
+    fun `should fail when attendance does not exist for the user`() {
+        val meetup = createFutureMeetup()
         val request = ConfirmAttendanceRequest(userId, meetupId)
 
         every { meetupRepository.findById(meetupId) } returns meetup
         every { attendanceRepository.getAttendance(userId, meetupId) } returns null
-        every { attendanceRepository.confirmAttendance(userId, meetupId) } returns Unit
 
-        // When
         val result = useCase.execute(request)
 
-        // Then
-        assertTrue(result.isSuccess)
-        verify { attendanceRepository.confirmAttendance(userId, meetupId) }
+        assertTrue(result.isFailure)
+        val exception = result.exceptionOrNull()
+        assertNotNull(exception)
+        assertTrue(exception is AttendanceNotFound)
     }
 
     @Test
-    fun `debe fallar cuando el meetup no existe`() {
-        // Given
+    fun `should fail when meetup does not exist`() {
         val request = ConfirmAttendanceRequest(userId, meetupId)
         every { meetupRepository.findById(meetupId) } returns null
 
-        // When
         val result = useCase.execute(request)
 
-        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertNotNull(exception)
@@ -91,18 +84,14 @@ class ConfirmAttendanceUseCaseTest {
     }
 
     @Test
-    fun `debe fallar cuando el meetup ya ha comenzado`() {
-        // Given
-        val pastDate = LocalDateTime.now().minusDays(1)
-        val meetup = createMeetup(startDate = pastDate)
+    fun `should fail when meetup has already started`() {
+        val meetup = createPastMeetup()
         val request = ConfirmAttendanceRequest(userId, meetupId)
 
         every { meetupRepository.findById(meetupId) } returns meetup
 
-        // When
         val result = useCase.execute(request)
 
-        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertNotNull(exception)
@@ -110,50 +99,20 @@ class ConfirmAttendanceUseCaseTest {
     }
 
     @Test
-    fun `debe fallar cuando el usuario ya esta registrado en el meetup`() {
-        // Given
-        val futureDate = LocalDateTime.now().plusDays(7)
-        val meetup = createMeetup(startDate = futureDate)
-        val existingAttendance = Attendance(
-            id = UUID.randomUUID(),
-            userId = userId,
-            meetupId = meetupId,
-            confirmed = LocalDateTime.now()
-        )
+    fun `should fail when attendance is already confirmed`() {
+        val meetup = createFutureMeetup()
+        val confirmedAttendance = createConfirmedAttendance(userId = userId, meetupId = meetupId)
         val request = ConfirmAttendanceRequest(userId, meetupId)
 
         every { meetupRepository.findById(meetupId) } returns meetup
-        every { attendanceRepository.getAttendance(userId, meetupId) } returns existingAttendance
+        every { attendanceRepository.getAttendance(userId, meetupId) } returns confirmedAttendance
 
-        // When
         val result = useCase.execute(request)
-
-        // Then
+        
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertNotNull(exception)
-        assertTrue(exception is UserAlreadyRegistered)
-    }
-
-
-    private fun createMeetup(startDate: LocalDateTime?): Meetup {
-        val venue = Venue(
-            id = venueId,
-            place = "Test Venue",
-            latitude = 36.84,
-            longitude = -2.46,
-            address = "Test Address",
-            seats = 100
-        )
-
-        return Meetup(
-            id = meetupId,
-            title = "Test Meetup",
-            description = "Test Description",
-            startDate = startDate,
-            venue = venue,
-            speakers = emptyList()
-        )
+        assertTrue(exception is AttendanceAlreadyConfirmed)
     }
 }
 
