@@ -7,6 +7,20 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * Use case for calculating user feedback statistics and participation metrics.
+ *
+ * This use case generates comprehensive statistics about a user's feedback activity,
+ * including:
+ * - List of events the user has provided feedback for (with ratings and comments)
+ * - Feedback completion percentage (how many attended events have feedback)
+ * - Total number of confirmed attendances
+ * - Total number of feedbacks submitted
+ *
+ * @property feedbackRepository
+ * @property attendanceRepository
+ * @property meetupRepository
+ */
 @Service
 class GetUserFeedbackStatsUseCase(
     private val feedbackRepository: FeedbackRepository,
@@ -14,6 +28,15 @@ class GetUserFeedbackStatsUseCase(
     private val meetupRepository: MeetupRepository
 ) {
 
+    /**
+     * Calculates comprehensive feedback statistics for a specific user.
+     *
+     * @param userId
+     * @return [UserFeedbackStats] containing all calculated metrics and event details
+     *
+     * @see UserFeedbackStats
+     * @see EventWithFeedbackInfo
+     */
     fun execute(userId: UUID): UserFeedbackStats {
         val feedbacks = feedbackRepository.getFeedbackForUser(userId)
 
@@ -30,7 +53,7 @@ class GetUserFeedbackStatsUseCase(
                 )
             }
         }
-        
+
         val confirmedAttendances = attendanceRepository.getAttendancesForUser(userId)
             .filter { it.confirmed != null }
 

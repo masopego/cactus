@@ -12,6 +12,15 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * Use case for authenticating users via Supabase and issuing JWT tokens.
+ *
+ * Validates the Supabase token, creates or retrieves the local user account
+ *
+ * @property userRepository
+ * @property tokenGenerator
+ * @property supabaseValidationService
+ */
 @Service
 class AuthenticateWithSupabaseUseCase(
     private val userRepository: UserRepository,
@@ -19,6 +28,14 @@ class AuthenticateWithSupabaseUseCase(
     private val supabaseValidationService: SupabaseValidationService
 ) {
 
+    /**
+     * Authenticates a user with their Supabase token and returns a JWT for API access.
+     *
+     * @param supabaseToken
+     * @return [AuthenticationResponse] containing JWT token and user information
+     * @throws IllegalArgumentException if the Supabase token is invalid or expired
+     *
+     */
     fun authenticateWithSupabase(supabaseToken: String): AuthenticationResponse {
         val supabaseUser = supabaseValidationService.validateTokenAndGetUser(supabaseToken)
             ?: throw IllegalArgumentException("Invalid Supabase token")
@@ -44,11 +61,18 @@ class AuthenticateWithSupabaseUseCase(
         )
     }
 
+    /**
+     * Creates a new local user account from Supabase user data.
+     *
+     * @param supabaseUser
+     * @return Newly created and persisted [User] entity
+     */
     private fun createUser(
         supabaseUser: SupabaseUserResponse,
     ): User {
         val nickname = supabaseUser.userMetadata?.nickname
             ?: supabaseUser.email.substringBefore("@")
+
         val avatar = supabaseUser.userMetadata?.avatar
             ?: supabaseUser.userMetadata?.avatarUrl
             ?: AuthConstants.DEFAULT_AVATAR_URL
@@ -60,7 +84,7 @@ class AuthenticateWithSupabaseUseCase(
             avatar = avatar,
             createDate = LocalDateTime.now()
         )
-
+        
         userRepository.save(user)
 
         return user

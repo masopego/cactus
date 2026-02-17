@@ -14,8 +14,25 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
 import java.util.*
 
+/**
+ * Implementation of [MeetupRepository] using Exposed ORM with complex JOIN operations.
+ *
+ * This repository handles the persistence of meetups, which involve multiple related entities:
+ * - **Meetups**: The main event entity
+ * - **Venues**: Location information (one-to-one relationship)
+ * - **Speakers**: Multiple speakers per meetup (many-to-many relationship via junction table)
+ *``
+ *
+ */
 @Repository
 class ExposedMeetupRepository : MeetupRepository {
+
+    /**
+     * Retrieves all meetups with their complete information (venue and speakers).
+     *
+     * @return List of all meetups with complete venue and speaker information.
+     *         Returns empty list if no meetups exist.
+     */
     override fun getMeetups(): List<Meetup> =
         transaction {
             (Meetups innerJoin Venues)
@@ -56,6 +73,13 @@ class ExposedMeetupRepository : MeetupRepository {
                 }
         }
 
+    /**
+     * Finds a specific meetup by its unique identifier with all related data.
+     *
+     * @param id
+     * @return Complete [Meetup] with venue and speakers if found, null if the meetup
+     *         doesn't exist or has no associated venue
+     */
     override fun findById(id: UUID): Meetup? =
         transaction {
             (Meetups innerJoin Venues)
@@ -77,7 +101,7 @@ class ExposedMeetupRepository : MeetupRepository {
                                 company = speakerRow[Speakers.company]
                             )
                         }
-
+                    
                     Meetup(
                         id = row[Meetups.id],
                         title = row[Meetups.title],

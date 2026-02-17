@@ -6,12 +6,30 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * Use case for calculating and retrieving user attendance statistics.
+ *
+ * - List of events the user has attended (confirmed attendances)
+ * - Total number of confirmed attendances
+ * - Attendance percentage (confirmed vs total available meetups)
+ * - Overall meetup count in the system
+ *
+ * @property attendanceRepository
+ * @property meetupRepository
+ */
 @Service
 class GetUserAttendanceStatsUseCase(
     private val attendanceRepository: AttendanceRepository,
     private val meetupRepository: MeetupRepository
 ) {
 
+    /**
+     * @param userId
+     * @return [UserAttendanceStats] containing all calculated statistics and attended events list
+     *
+     * @see UserAttendanceStats
+     * @see AttendedEventInfo
+     */
     fun execute(userId: UUID): UserAttendanceStats {
         val attendances = attendanceRepository.getAttendancesForUser(userId)
 
@@ -26,7 +44,7 @@ class GetUserAttendanceStatsUseCase(
                 )
             }
         }
-        
+
         val totalMeetups = meetupRepository.getMeetups().size
         val totalConfirmed = confirmedAttendances.size
 

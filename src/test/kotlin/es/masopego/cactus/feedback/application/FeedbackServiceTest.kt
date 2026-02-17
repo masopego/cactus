@@ -37,7 +37,7 @@ class FeedbackServiceTest {
 
         every { feedbackRepository.getFeedbackForUser(userId) } returns expectedFeedbacks
 
-        val result = service.getAllAttendancesByUser(userId)
+        val result = service.getAllFeedbacksByUser(userId)
 
         assertNotNull(result)
         assertEquals(3, result.size)
@@ -52,7 +52,7 @@ class FeedbackServiceTest {
     fun `should return empty list when user has no feedbacks`() {
         every { feedbackRepository.getFeedbackForUser(userId) } returns emptyList()
 
-        val result = service.getAllAttendancesByUser(userId)
+        val result = service.getAllFeedbacksByUser(userId)
 
         assertNotNull(result)
         assertTrue(result.isEmpty())

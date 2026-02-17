@@ -11,9 +11,22 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * Implementation of [UserRepository] using Exposed ORM.
+ *
+ * This repository provides data persistence for users using the Exposed SQL library.
+ * All database operations are wrapped in transactions for consistency.
+ *
+ */
 @Repository
 class ExposedUserRepository : UserRepository {
 
+    /**
+     * Finds a user by their email address.
+     *
+     * @param email
+     * @return Domain User object if found, null otherwise
+     */
     override fun findByEmail(email: String): User? = transaction {
         Users.select { Users.email eq email }
             .singleOrNull()
@@ -28,6 +41,12 @@ class ExposedUserRepository : UserRepository {
             }
     }
 
+    /**
+     * Finds a user by their unique identifier.
+     *
+     * @param id
+     * @return Domain User object if found, null otherwise
+     */
     override fun findById(id: UUID): User? = transaction {
         Users.select { Users.id eq id }
             .singleOrNull()
@@ -42,6 +61,17 @@ class ExposedUserRepository : UserRepository {
             }
     }
 
+    /**
+     * Saves or updates a user in the database.
+     *
+     * Implementation logic:
+     * - If user.id exists and is found in database: performs UPDATE operation
+     * - If user.id is null or not found: performs INSERT operation with new or provided UUID
+     * - For new users, createDate is set to current timestamp
+     *
+     * @param user
+     * @return User object with assigned/confirmed ID
+     */
     override fun save(user: User): User = transaction {
         val userId = if (user.id != null && existsById(user.id)) {
             Users.update({ Users.id eq user.id }) {
@@ -65,6 +95,12 @@ class ExposedUserRepository : UserRepository {
         user.copy(id = userId)
     }
 
+    /**
+     * Checks if a user with the given ID exists in the database.
+     *
+     * @param id
+     * @return true if user exists, false otherwise
+     */
     private fun existsById(id: UUID): Boolean = transaction {
         Users.select { Users.id eq id }.count() > 0
     }

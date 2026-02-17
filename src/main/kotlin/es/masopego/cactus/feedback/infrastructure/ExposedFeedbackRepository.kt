@@ -11,8 +11,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
 import java.util.*
 
+/**
+ * Implementation of [FeedbackRepository] using Exposed ORM.
+ */
 @Repository
 class ExposedFeedbackRepository : FeedbackRepository {
+    /**
+     * Retrieves all feedback submitted by a specific user.
+     *
+     * @param userId
+     * @return List of all feedback from the user
+     */
     override fun getFeedbackForUser(userId: UUID): List<Feedback> = transaction {
         Feedbacks
             .innerJoin(Attendances, { attendanceId }, { id })
@@ -27,6 +36,12 @@ class ExposedFeedbackRepository : FeedbackRepository {
             }
     }
 
+    /**
+     * Saves new feedback to the database.
+     *
+     * @param feedback
+     * @return The same feedback object after successful insertion
+     */
     override fun save(feedback: Feedback): Feedback = transaction {
         val feedbackId = feedback.id
 
@@ -40,6 +55,12 @@ class ExposedFeedbackRepository : FeedbackRepository {
         feedback
     }
 
+    /**
+     * Finds feedback associated with a specific attendance.
+     *
+     * @param attendanceId
+     * @return Feedback if found, null otherwise
+     */
     override fun findByAttendanceId(attendanceId: UUID): Feedback? = transaction {
         Feedbacks
             .select { Feedbacks.attendanceId eq attendanceId }
