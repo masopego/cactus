@@ -30,12 +30,12 @@ class MeetupFixtures(
             logger.info("Inserting meetups")
 
             val id1: UUID = Meetups.insert {
-                it[title] = "AI & Future"
+                it[title] = "3D Printing Day: From bits to Atoms"
                 it[description] = "Charla sobre inteligencia artificial aplicada"
-                it[startDate] = LocalDateTime.parse("2025-11-10T18:00:00")
+                it[startDate] = LocalDateTime.parse("2026-11-10T18:00:00")
                 it[venue] = venueFixture.createdVenueIds["Clasijazz"]!!
             } get Meetups.id
-            createdMeetupIds["AI & Future"] = id1
+            createdMeetupIds["3D Printing Day: From bits to Atoms"] = id1
 
             val id2: UUID = Meetups.insert {
                 it[title] = "Web3 Developers"
