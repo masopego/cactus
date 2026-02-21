@@ -139,7 +139,6 @@ COPY public.attendance (id, "user", meetup, confirmed) FROM stdin;
 --
 
 COPY public.feedback (id, attendance, rating, comment) FROM stdin;
-b4ab87b6-6b28-4286-a808-c941063ba3c1	51c21b86-f5ae-4b85-b622-fc60eb648b37	5	Hola! El evento ha estado genial y el speaker de 10
 ae9b5c53-0be0-4f92-8638-870c00c1047c	51c21b86-f5ae-4b85-b622-fc60eb648b36	5	Me ha encantado el evento y el speaker mas. Volvere de nuevo
 \.
 
