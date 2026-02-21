@@ -1,17 +1,7 @@
 package es.masopego.cactus.shared.infrastructure
 
-import es.masopego.cactus.attendances.infrastructure.persistence.entity.Attendances
-import es.masopego.cactus.auth.infrastructure.persistence.entity.Users
-import es.masopego.cactus.feedback.infrastructure.persistence.entity.Feedbacks
-import es.masopego.cactus.meetups.infrastructure.persistence.entity.MeetupSpeakers
-import es.masopego.cactus.meetups.infrastructure.persistence.entity.Meetups
-import es.masopego.cactus.shared.infrastructure.persistence.fixture.Fixture
-import es.masopego.cactus.speakers.persistence.entity.Speakers
-import es.masopego.cactus.venues.infrastructure.persistence.entity.Venues
 import jakarta.annotation.PostConstruct
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.context.annotation.Configuration
 import javax.sql.DataSource
 
@@ -20,32 +10,21 @@ import javax.sql.DataSource
  *
  * This configuration class is responsible for:
  * 1. Establishing database connection with the configured DataSource
- * 2. Creating all necessary database tables (schema creation)
- * 3. Loading initial data through fixtures (seed data)
  *
  * @property dataSource Spring-managed DataSource configured in application properties
- * @property fixtures List of fixture implementations to load seed data (auto-discovered by Spring)
  */
 @Configuration
 class DatabaseConfig(
     private val dataSource: DataSource,
-    private val fixtures: List<Fixture>
 ) {
 
     /**
-     * Initializes the database connection, creates schema, and loads fixtures.
+     * Initializes the database connection
      *
-     * @throws Exception if database connection fails, schema creation fails, or any fixture fails to load
+     * @throws Exception if database connection fails
      */
     @PostConstruct
     fun init() {
         Database.connect(dataSource)
-
-        transaction {
-            SchemaUtils.create(Venues, Meetups, Speakers, MeetupSpeakers, Attendances, Users, Feedbacks)
-            fixtures.forEach {
-                it.load()
-            }
-        }
     }
 }
