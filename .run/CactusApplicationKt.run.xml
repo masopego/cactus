@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="CactusApplicationKt" type="JetRunConfigurationType" nameIsGenerated="true">
+        <envs>
+            <env name="DB_PASSWORD" value="secret"/>
+            <env name="DB_URL" value="jdbc:postgresql://localhost:5432/mydatabase "/>
+            <env name="DB_USERNAME" value="myuser"/>
+            <env name="JWT_EXPIRATION" value="86400000"/>
+            <env name="JWT_SECRET" value="404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"/>
+            <env name="SUPABASE_ANON_KEY" value="fillme"/>
+            <env name="SUPABASE_URL" value="https://fillme.supabase.co"/>
+        </envs>
+        <option name="MAIN_CLASS_NAME" value="es.masopego.cactus.CactusApplicationKt"/>
+        <module name="cactus.main"/>
+        <shortenClasspath name="NONE"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
+</component>
